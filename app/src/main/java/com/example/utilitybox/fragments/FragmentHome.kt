@@ -2,6 +2,7 @@ package com.example.utilitybox.fragments
 
 import android.Manifest
 import android.content.Context
+
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -9,21 +10,14 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
-import android.util.Log
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 
 import com.example.utilitybox.R
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesUtil
-import com.google.android.gms.location.places.Places
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 
 
 class FragmentHome : Fragment(), GoogleMap.OnMyLocationButtonClickListener,
@@ -43,7 +37,8 @@ class FragmentHome : Fragment(), GoogleMap.OnMyLocationButtonClickListener,
 
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(activity)
+        mapFragment.getMapAsync(context)
+
         return v
     }
 
@@ -82,7 +77,7 @@ class FragmentHome : Fragment(), GoogleMap.OnMyLocationButtonClickListener,
         if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
             return
         }
-        /*
+/*
         if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation()
@@ -90,8 +85,8 @@ class FragmentHome : Fragment(), GoogleMap.OnMyLocationButtonClickListener,
             // Permission was denied. Display an error message
             // Display the missing permission error dialog when the fragments resume.
             permissionDenied = true
-        }
-        */
+        }*/
+
     }
 
 
@@ -105,7 +100,8 @@ class FragmentHome : Fragment(), GoogleMap.OnMyLocationButtonClickListener,
     }
 }
 
-
-private fun SupportMapFragment.getMapAsync(activity: FragmentActivity?) {
+private fun SupportMapFragment.getMapAsync(context: Context?) {
 
 }
+
+

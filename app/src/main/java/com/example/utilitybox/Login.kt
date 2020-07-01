@@ -1,8 +1,8 @@
 package com.example.utilitybox
 
-import android.content.Context
+
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -73,8 +73,12 @@ class Login : AppCompatActivity() {
         if (requestCode == RC_SIGN_IN) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
-                val account = task.getResult(ApiException::class.java)
-                firebaseAuthWithGoogle(account)
+                /*val account = task.getResult(ApiException::class.java)
+                firebaseAuthWithGoogle(account)*/
+                val account=task.getResult(ApiException::class.java)
+                if (account != null) {
+                    firebaseAuthWithGoogle(account)
+                }
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
             }

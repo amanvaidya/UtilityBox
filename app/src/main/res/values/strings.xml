@@ -11,7 +11,7 @@
     <string name="utility">Utility</string>
 
 
-    <string name="map_api_key">YOUR_API_KEY</string>
+    <string name="map_api_key">AIzaSyA7TS6UQsXu9IQDliReEVcXJOdgLgaIyY4</string>
 
     <!--Map strings-->
     <string name="title_activity_maps">Current Place Details</string>

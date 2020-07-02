@@ -104,6 +104,10 @@ class FragmentHome : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
 
+        googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+       /* googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+        googleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        googleMap.mapType = GoogleMap.MAP_TYPE_TERRAIN*/
         // [START_EXCLUDE]
         // [START map_current_place_set_info_window_adapter]
         // Use a custom info window adapter to handle multiple lines of text in the
@@ -113,6 +117,7 @@ class FragmentHome : Fragment(), OnMapReadyCallback {
             override fun getInfoWindow(arg0: Marker): View? {
                 return null
             }
+
 
             override fun getInfoContents(marker: Marker): View {
                 // Inflate the layouts for the info window, title and snippet.

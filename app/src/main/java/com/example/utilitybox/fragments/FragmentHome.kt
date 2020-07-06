@@ -116,7 +116,7 @@ class FragmentHome : Fragment(), OnMapReadyCallback, GoogleMap.OnPolylineClickLi
                 return infoWindow
             }
         })
-
+/*
         val polyline1 = googleMap.addPolyline(PolylineOptions()
             .clickable(true)
             .add(
@@ -161,7 +161,7 @@ class FragmentHome : Fragment(), OnMapReadyCallback, GoogleMap.OnPolylineClickLi
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(-23.684, 133.903), 4f))
         googleMap.setOnPolylineClickListener(this)
         googleMap.setOnPolygonClickListener(this)
-
+*/
         getLocationPermission()
             updateLocationUI()
             getDeviceLocation()

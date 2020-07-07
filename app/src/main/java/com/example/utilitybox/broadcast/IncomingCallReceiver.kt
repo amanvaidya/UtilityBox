@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.sip.SipAudioCall
 import android.net.sip.SipProfile
 import com.example.utilitybox.fragments.FragmentNotification
+import androidx.core.content.ContextCompat.startActivity
+
+
 
 
 class IncomingCallReceiver: BroadcastReceiver() {
@@ -36,10 +39,10 @@ class IncomingCallReceiver: BroadcastReceiver() {
 
             wtActivity.updateStatus(incomingCall)
         }catch (e:Exception){
-            System.out.println("Err-->"+e)
-            if (incomingCall != null) {
-                incomingCall.close();
-            }
+            System.out.println("Err-->$e")
+            incomingCall?.close()
         }
     }
+
+
 }

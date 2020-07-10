@@ -1,10 +1,7 @@
 package com.example.utilitybox.helpers
 
-import android.R.attr.name
 
-
-
-class DeviceInfo{
+class DeviceInfo(name: String, address: String) {
     var name:String?=null
     var address:String?=null
 

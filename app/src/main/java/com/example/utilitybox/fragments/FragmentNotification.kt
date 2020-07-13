@@ -36,7 +36,7 @@ open class FragmentNotification : Fragment(){
     private var listView: ListView? = null
     //Bluetooth
     private var MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
-    private var mBluetoothAdapter: BluetoothAdapter? = null
+    private lateinit var mBluetoothAdapter: BluetoothAdapter
     private var pairedDevices: Set<BluetoothDevice>? = null
     private var device: BluetoothDevice? = null
     private var deviceList: ArrayList<DeviceInfo>? = null
@@ -74,8 +74,25 @@ open class FragmentNotification : Fragment(){
 
         audio?.visibility=View.GONE
 
+
+        // Microphone button pressed/released
+        audio?.setOnTouchListener { _, event ->
+            val action = event.action
+            if (action == MotionEvent.ACTION_DOWN) {
+                audioClient?.stopPlaying()
+                audioClient?.startRecording()
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                audioClient?.stopRecording()
+                audioClient?.startPlaying()
+            }
+            false
+        }
+
+        // Send CONNECT request
         connect?.setOnClickListener(View.OnClickListener {
-            fun onClick(arg0:View){
+            System.out.println("Am i clicked")
+            //fun onClick(arg0:View){
+                System.out.println("Am i")
                 Log.d("BLUETOOTH", "Connect button pressed")
                 listView?.visibility=ListView.VISIBLE
                 connect?.isEnabled
@@ -100,7 +117,7 @@ open class FragmentNotification : Fragment(){
                 adapter = ArrayAdapter(this.requireContext(), android.R.layout.simple_list_item_1, deviceList)
                 listView?.adapter = adapter
 
-            }
+            //}
         })
 
         // Listen for connection requests
@@ -109,27 +126,27 @@ open class FragmentNotification : Fragment(){
             fun onClick(arg0:View) {
                 // Handle UI elements - change status
                 listen!!.isEnabled = false
-                connect!!.isEnabled = false;
-                listView!!.visibility = ListView.GONE;
+                connect!!.isEnabled = false
+                listView!!.visibility = ListView.GONE
                 // Accept connection
-                boolean connectSuccess = listenThread . acceptConnect (mBluetoothAdapter, MY_UUID);
-                Log.d("BLUETOOTH", "Listen");
+                val connectSuccess:Boolean = listenThread!!.acceptConnect(mBluetoothAdapter, MY_UUID)
+                Log.d("BLUETOOTH", "Listen")
 
                 if (connectSuccess) {
                     // Connection successful - get socket object, start listening, change visibility of UI elements
                     bSocket = listenThread?.getSocket()
-                    audioClient?.audioCreate();
-                    bSocket?.let { it1 -> audioClient?.setSocket(it1) };
-                    audioClient?.setupStreams();
-                    audioClient?.startPlaying();
-                    Toast.makeText(this.requireContext(), "Connection was successful", Toast.LENGTH_LONG).show();
+                    audioClient?.audioCreate()
+                    bSocket?.let { it1 -> audioClient?.setSocket(it1) }
+                    audioClient?.setupStreams()
+                    audioClient?.startPlaying()
+                    Toast.makeText(this.requireContext(), "Connection was successful", Toast.LENGTH_LONG).show()
                     audio?.visibility = View.VISIBLE
-                    listenAttempt = true;
+                    listenAttempt = true
                 } else {
                     // Connection Unsuccessful - change visibility of UI elements
-                    Toast.makeText(activity, "Connection was unsuccessful", Toast.LENGTH_LONG).show();
-                    listen?.isEnabled = true;
-                    connect?.isEnabled = true;
+                    Toast.makeText(activity, "Connection was unsuccessful", Toast.LENGTH_LONG).show()
+                    listen?.isEnabled = true
+                    connect?.isEnabled = true
                 }
             }
         });
@@ -139,48 +156,57 @@ open class FragmentNotification : Fragment(){
 
             fun onClick(arg0:View) {
 
-                boolean disconnectListen = false;
-                boolean disconnectConnect = false;
+                var disconnectListen:Boolean = false
+                var disconnectConnect:Boolean = false
                 // Enable buttons and disable listView
                 listen?.isEnabled = true
                 connect?.isEnabled = true
                 listView?.visibility = ListView.GONE
                 // Close the bluetooth socket
                 if (listenAttempt) {
-                    disconnectListen = listenThread?.closeConnect();
-                    listenAttempt = false;
+                    disconnectListen = listenThread?.closeConnect()!!
+                    listenAttempt = false
                 }
                 if (connectAttempt) {
-                    disconnectConnect = connectThread?.closeConnect();
-                    connectAttempt = false;
+                    disconnectConnect = connectThread?.closeConnect()!!
+                    connectAttempt = false
                 }
 
                 audioClient?.destroyProcesses()
 
-                Log.d("BLUETOOTH", "Disconnect");
+                Log.d("BLUETOOTH", "Disconnect")
 
                 if (disconnectListen || disconnectConnect) {
                     // Disconnect successful - Handle UI element change
-                    audio?.visibility = View.GONE;
-                    listen?.isEnabled = true;
-                    connect?.isEnabled = true;
+                    audio?.visibility = View.GONE
+                    listen?.isEnabled = true
+                    connect?.isEnabled = true
                 } else {
                     // Unsuccessful disconnect - Do nothing
                 }
             }
-        });
+        })
 
-    fun onRequestPermissionsResult(requestCode:Int, @NonNull permissions:String[] , @NonNull grantResults:int[]) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case REQUEST_RECORD_AUDIO_PERMISSION:
-            // Permission granted
-            permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-            break;
+        fun onRequestPermissionsResult(requestCode:Int, @NonNull permissions:Array<String>, @NonNull grantResults:IntArray) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            when (requestCode) {
+                REQUEST_RECORD_AUDIO_PERMISSION ->
+                    // Permission granted
+                    permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+            }
+            if (!permissionToRecordAccepted)
+            {
+                //finish()
+            }
         }
-        if (!permissionToRecordAccepted ) finish();
-    }
+
         return v
+    }
+    companion object {
+        // Requesting permission to RECORD_AUDIO
+        private val REQUEST_RECORD_AUDIO_PERMISSION = 200
+        //Bluetooth parameters
+        private val MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
     }
 
 

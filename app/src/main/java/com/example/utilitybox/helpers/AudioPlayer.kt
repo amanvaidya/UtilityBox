@@ -13,36 +13,92 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.Buffer
 
-class AudioPlayer (inputStream:InputStream) {
+open class AudioPlayer/**
+ * A simple audio player.
+ *
+ * @param inputStream The input stream of the recording.
+ */
+    (inputStream:InputStream) {
     /** The audio stream we're reading from. */
-    private var mInputStream: InputStream? = null
+    private val mInputStream:InputStream = inputStream
     /**
      * If true, the background thread will continue to loop and play audio. Once false, the thread
      * will shut down.
      */
-    @Volatile
-    var mAlive: Boolean = false
-    /** The background thread recording audio for us.  */
-    private var mThread: Thread? = null
+    /** @return True if currently playing. */
+    @Volatile var isPlaying:Boolean = false
+    /** The background thread recording audio for us. */
+    private var mThread: Thread? =null
 
-    init {
-        mInputStream = inputStream
-    }
-
-    /** @return True if currently playing.
-     */
-    fun isPlaying(): Boolean {
-        return mAlive
-    }
-    fun start(){
-        mAlive=true
-        mThread = object :Thread(){
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-            override fun run() {
+    /** Starts playing the stream. */
+    fun start() {
+        isPlaying = true
+        mThread = object:Thread() {
+            public override fun run() {
                 setThreadPriority(THREAD_PRIORITY_AUDIO)
-                var buffer:Buffer
-                //pending from here
+                val buffer = Buffer()
+                val audioTrack = AudioTrack(
+                    AudioManager.STREAM_MUSIC,
+                    buffer.sampleRate,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    buffer.size,
+                    AudioTrack.MODE_STREAM)
+                audioTrack.play()
+                var len:Int=0
+                var bData:Int=mInputStream.read(buffer.data)
+                try
+                {
+                    while ((isPlaying && (len == bData)) !=null)
+                    {
+                        audioTrack.write(buffer.data, 0, len)
+                    }
+                }
+                catch (e:IOException) {
+                    Log.e(TAG, "Exception with playing stream", e)
+                }
+                finally
+                {
+                    stopInternal()
+                    audioTrack.release()
+                    onFinish()
+                }
             }
+        }
+        (mThread as Thread).start()
+    }
+    private fun stopInternal() {
+        isPlaying = false
+        try
+        {
+            mInputStream.close()
+        }
+        catch (e:IOException) {
+            Log.e(TAG, "Failed to close input stream", e)
+        }
+    }
+    /** Stops playing the stream. */
+    fun stop() {
+        stopInternal()
+        try
+        {
+            mThread?.join()
+        }
+        catch (e:InterruptedException) {
+            Log.e(TAG, "Interrupted while joining AudioRecorder thread", e)
+            Thread.currentThread().interrupt()
+        }
+    }
+    /** The stream has now ended. */
+    protected fun onFinish() {}
+    private class Buffer:AudioBuffer() {
+        override fun validSize(size:Int):Boolean {
+            return size != AudioTrack.ERROR && size != AudioTrack.ERROR_BAD_VALUE
+        }
+
+        override fun getMinBufferSize(sampleRate:Int):Int {
+            return AudioTrack.getMinBufferSize(
+                sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
         }
     }
 }

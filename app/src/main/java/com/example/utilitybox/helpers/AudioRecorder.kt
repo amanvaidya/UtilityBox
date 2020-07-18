@@ -2,6 +2,8 @@ package com.example.utilitybox.helpers
 
 import android.content.ContentValues.TAG
 import android.media.AudioFormat
+import android.media.AudioFormat.CHANNEL_IN_MONO
+import android.media.AudioFormat.ENCODING_PCM_16BIT
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Process.THREAD_PRIORITY_AUDIO

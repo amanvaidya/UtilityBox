@@ -44,7 +44,12 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:15.0.1"
     implementation "com.google.android.gms:play-services-places:15.0.1"
     implementation 'com.google.android.libraries.places:places:2.3.0'
+
     implementation 'com.google.android.gms:play-services-nearby:16.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-annotations:28.0.0'
 }
 apply plugin: 'com.google.gms.google-services'
 

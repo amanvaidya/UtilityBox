@@ -35,7 +35,7 @@
                 android:name=".Home"
                 android:label="@string/title_activity_home">
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

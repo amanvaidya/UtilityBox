@@ -10,7 +10,7 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.util.HashSet
 
-class GestureDetector
+open class GestureDetector
 /**
  * Detects gestures on [KeyEvent]s.
  *
@@ -52,10 +52,10 @@ class GestureDetector
     }
 
     /** The key is being held. Override this method to act on the event.  */
-    protected fun onHold() {}
+    protected open fun onHold() {}
 
     /** The key has been released. Override this method to act on the event.  */
-    protected fun onRelease() {}
+    protected open fun onRelease() {}
 
     /** Processes a key event. Returns true if it consumes the event.  */
     fun onKeyEvent(event: KeyEvent): Boolean {

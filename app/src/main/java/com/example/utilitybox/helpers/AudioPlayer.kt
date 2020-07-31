@@ -90,7 +90,7 @@ open class AudioPlayer/**
         }
     }
     /** The stream has now ended. */
-    protected fun onFinish() {}
+    protected open fun onFinish() {}
     private class Buffer:AudioBuffer() {
         override fun validSize(size:Int):Boolean {
             return size != AudioTrack.ERROR && size != AudioTrack.ERROR_BAD_VALUE

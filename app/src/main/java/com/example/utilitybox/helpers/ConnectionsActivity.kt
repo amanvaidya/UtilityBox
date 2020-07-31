@@ -90,7 +90,7 @@ abstract class ConnectionsActivity : AppCompatActivity() {
                         ConnectionsActivity.toString(result.status)
                     )
                 )
-                onConnectionFailed(mPendingConnections.remove(endpointId))
+                mPendingConnections.remove(endpointId)?.let { onConnectionFailed(it) }
                 return
             }
             connectedToEndpoint(mPendingConnections.remove(endpointId))
@@ -135,7 +135,7 @@ abstract class ConnectionsActivity : AppCompatActivity() {
      *
      * @return All permissions required for the app to properly function.
      */
-    protected val requiredPermissions: Array<String>
+    open val requiredPermissions: Array<String?>
         get() = REQUIRED_PERMISSIONS
 
     /** Returns the client's name. Visible to others when connecting.  */
@@ -242,7 +242,7 @@ abstract class ConnectionsActivity : AppCompatActivity() {
      * we want to continue with the connection, call [.acceptConnection]. Otherwise,
      * call [.rejectConnection].
      */
-    protected fun onConnectionInitiated(endpoint: Endpoint, connectionInfo: ConnectionInfo) {}
+    protected open fun onConnectionInitiated(endpoint: Endpoint, connectionInfo: ConnectionInfo) {}
 
     /** Accepts a connection request.  */
     protected fun acceptConnection(endpoint: Endpoint) {
@@ -316,7 +316,7 @@ abstract class ConnectionsActivity : AppCompatActivity() {
     /**
      * Called when a remote endpoint is discovered. To connect to the device, call [ ][.connectToEndpoint].
      */
-    protected fun onEndpointDiscovered(endpoint: Endpoint) {}
+    protected open fun onEndpointDiscovered(endpoint: Endpoint) {}
 
     /** Disconnects from the given endpoint.  */
     protected fun disconnect(endpoint: Endpoint) {
@@ -378,13 +378,13 @@ abstract class ConnectionsActivity : AppCompatActivity() {
      * Called when a connection with this endpoint has failed. Override this method to act on the
      * event.
      */
-    protected fun onConnectionFailed(endpoint: Endpoint?) {}
+    open fun onConnectionFailed(endpoint: Endpoint) {}
 
     /** Called when someone has connected to us. Override this method to act on the event.  */
-    protected fun onEndpointConnected(endpoint: Endpoint) {}
+    protected open fun onEndpointConnected(endpoint: Endpoint) {}
 
     /** Called when someone has disconnected. Override this method to act on the event.  */
-    protected fun onEndpointDisconnected(endpoint: Endpoint) {}
+    protected open fun onEndpointDisconnected(endpoint: Endpoint) {}
 
     /**
      * Sends a [Payload] to all currently connected endpoints.
@@ -407,35 +407,35 @@ abstract class ConnectionsActivity : AppCompatActivity() {
      * @param endpoint The sender.
      * @param payload The data.
      */
-    protected fun onReceive(endpoint: Endpoint?, payload: Payload) {}
+    open fun onReceive(endpoint: Endpoint?, payload: Payload) {}
 
     @CallSuper
-    protected fun logV(msg: String) {
+    open fun logV(msg: String) {
         Log.v("hhh", msg)
     }
 
     @CallSuper
-    protected fun logD(msg: String) {
+    open fun logD(msg: String) {
         Log.d("hhh", msg)
     }
 
     @CallSuper
-    protected fun logW(msg: String) {
+    open fun logW(msg: String) {
         Log.w("hhh", msg)
     }
 
     @CallSuper
-    protected fun logW(msg: String, e: Throwable) {
+    open fun logW(msg: String, e: Throwable) {
         Log.w("hhh", msg, e)
     }
 
     @CallSuper
-    protected fun logE(msg: String, e: Throwable) {
+    open fun logE(msg: String, e: Throwable) {
         Log.e("hhh", msg, e)
     }
 
     /** Represents a device we can talk to.  */
-    protected class Endpoint(val id: String, val name: String) {
+    class Endpoint(val id: String, val name: String) {
 
         override fun equals(obj: Any?): Boolean {
             if (obj is Endpoint) {

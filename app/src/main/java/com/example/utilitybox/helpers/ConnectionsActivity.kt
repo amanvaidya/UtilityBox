@@ -15,7 +15,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn.hasPermissions
 import android.widget.Toast
 import android.content.pm.PackageManager
 import androidx.annotation.NonNull
+import androidx.core.app.ActivityCompat.recreate
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.nearby.connection.*
 import com.google.android.gms.tasks.OnFailureListener
@@ -25,7 +27,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
-abstract class ConnectionsActivity : AppCompatActivity() {
+abstract class ConnectionsActivity : Fragment() {
 
 
     /** Our handler to Nearby Connections.  */
@@ -135,7 +137,7 @@ abstract class ConnectionsActivity : AppCompatActivity() {
      *
      * @return All permissions required for the app to properly function.
      */
-    open val requiredPermissions: Array<String?>
+    open val requiredPermissions: Array<String>
         get() = REQUIRED_PERMISSIONS
 
     /** Returns the client's name. Visible to others when connecting.  */
@@ -157,17 +159,17 @@ abstract class ConnectionsActivity : AppCompatActivity() {
     /** Called when our Activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mConnectionsClient = Nearby.getConnectionsClient(this)
+        mConnectionsClient = Nearby.getConnectionsClient(requireActivity())
     }
 
     /** Called when our Activity has been made visible to the user.  */
     override fun onStart() {
         super.onStart()
-        if (!hasPermissions(this, *requiredPermissions)) {
-            if (!hasPermissions(this, *requiredPermissions)) {
+        if (!hasPermissions(requireContext(), *requiredPermissions)) {
+            if (!hasPermissions(requireContext(), *requiredPermissions)) {
                 if (Build.VERSION.SDK_INT < 23) {
                     ActivityCompat.requestPermissions(
-                        this, requiredPermissions, REQUEST_CODE_REQUIRED_PERMISSIONS
+                        requireActivity(), requiredPermissions, REQUEST_CODE_REQUIRED_PERMISSIONS
                     )
                 } else {
                     requestPermissions(requiredPermissions, REQUEST_CODE_REQUIRED_PERMISSIONS)
@@ -184,12 +186,12 @@ abstract class ConnectionsActivity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_REQUIRED_PERMISSIONS) {
             for (grantResult in grantResults) {
                 if (grantResult == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.error_missing_permissions, Toast.LENGTH_LONG).show()
-                    finish()
+                    Toast.makeText(requireContext(), R.string.error_missing_permissions, Toast.LENGTH_LONG).show()
+                    requireActivity().finish()
                     return
                 }
             }
-            recreate()
+            recreate(requireActivity())
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

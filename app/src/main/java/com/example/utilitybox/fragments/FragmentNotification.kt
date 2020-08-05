@@ -6,22 +6,20 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.AUDIO_SERVICE
 import android.media.AudioManager
 import android.os.Build
+import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.text.SpannableString
 import android.text.format.DateFormat
+import android.text.method.ScrollingMovementMethod
 import android.text.style.ForegroundColorSpan
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewAnimationUtils
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.ViewCompat
 
 import com.example.utilitybox.R
@@ -66,6 +64,7 @@ class FragmentNotification : ConnectionsActivity(){
      * Queries the phone's contacts for their own profile, and returns their name. Used when
      * connecting to another device.
      */
+    var mName:String=""
     override var name: String = ""
         private set
 
@@ -86,7 +85,7 @@ class FragmentNotification : ConnectionsActivity(){
     private var mCurrentAnimator: Animator? = null
 
     /** A running log of debug messages. Only visible when DEBUG=true.  */
-    private var mDebugLogView: TextView? = null
+    private lateinit var mDebugLogView: TextView
 
     /** Listens to holding/releasing the volume rocker.  */
     private val mGestureDetector = object : GestureDetector(KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_UP) {
@@ -114,6 +113,30 @@ class FragmentNotification : ConnectionsActivity(){
 
     /** The phone's original media volume.  */
     private var mOriginalVolume: Int = 0
+
+    lateinit var v: View
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        v = inflater.inflate(R.layout.fragment_fragment_notification, container, false)
+
+        mPreviousStateView = v.findViewById<TextView>(R.id.previous_state)
+        mCurrentStateView = v.findViewById<TextView>(R.id.current_state)
+        mDebugLogView = v.findViewById<TextView>(R.id.debug_log)
+
+        mDebugLogView!!.visibility = View.VISIBLE
+        mDebugLogView!!.movementMethod = ScrollingMovementMethod()
+
+        mName = generateRandomName()
+        System.out.println("i am here")
+
+        v.findViewById<TextView>(R.id.name).text = mName
+        return v
+    }
+
 
     /** @return True if currently playing.
      */
@@ -151,7 +174,7 @@ class FragmentNotification : ConnectionsActivity(){
 
 
         // Set the media volume to max.
-        volumeControlStream = AudioManager.STREAM_MUSIC
+        requireActivity().volumeControlStream = AudioManager.STREAM_MUSIC
         val audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
         mOriginalVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         audioManager.setStreamVolume(
@@ -165,7 +188,7 @@ class FragmentNotification : ConnectionsActivity(){
         // Restore the original volume.
         val audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mOriginalVolume, 0)
-        volumeControlStream = AudioManager.USE_DEFAULT_STREAM_TYPE
+        requireActivity().volumeControlStream = AudioManager.USE_DEFAULT_STREAM_TYPE
 
         // Stop all audio-related threads
         if (isRecording) {
@@ -185,12 +208,12 @@ class FragmentNotification : ConnectionsActivity(){
         super.onStop()
     }
 
-    override fun onBackPressed() {
+    fun onBackPressed() {
         if (state == State.CONNECTED) {
             state = State.SEARCHING
             return
         }
-        super.onBackPressed()
+        activity?.onBackPressed()
     }
 
     override fun onEndpointDiscovered(endpoint: ConnectionsActivity.Endpoint) {
@@ -393,7 +416,7 @@ class FragmentNotification : ConnectionsActivity(){
             val player = object : AudioPlayer(payload.asStream()!!.asInputStream()) {
                 @WorkerThread
                 override fun onFinish() {
-                    runOnUiThread { mAudioPlayer = null }
+                    activity?.runOnUiThread { mAudioPlayer = null }
                 }
             }
             mAudioPlayer = player
@@ -527,8 +550,9 @@ class FragmentNotification : ConnectionsActivity(){
         private const val SERVICE_ID = "com.example.utilitybox.FragmentNotification.SERVICE_ID"
 
         /** Joins 2 arrays together.  */
+
         private fun join(a: Array<String>, vararg b: String): Array<String> {
-            val join = arrayOfNulls<String>(a.size + b.size)
+            val join= arrayOf((a.size + b.size).toString())
             System.arraycopy(a, 0, join, 0, a.size)
             System.arraycopy(b, 0, join, a.size, b.size)
             return join
@@ -541,11 +565,13 @@ class FragmentNotification : ConnectionsActivity(){
         }
 
         private fun generateRandomName(): String {
+            System.out.println("im called")
             var name = ""
             val random = Random()
             for (i in 0..4) {
                 name += random.nextInt(10)
             }
+            System.out.println(name)
             return name
         }
     }
